@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body>
-<div class="wrapper-page">
+<div class="wrapper-page" id="app">
     {{ $slot }}
 </div>
 
