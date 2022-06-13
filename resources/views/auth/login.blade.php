@@ -21,14 +21,14 @@
                             <div class="form-group">
                                 <label for="email">{{ __('Email') }}</label>
                                 <input class="form-control" type="text" required="" id="email" autofocus="" tabindex="1"
-                                       name="email" value="{{ old('email') ?: 'admin@example.com' }}">
+                                       name="email" value="{{ old('email') }}">
                             </div>
                             <div class="form-group">
                                 <label for="password">{{ __('Password') }}</label>
                                 <a href="{{ route('password.request') }}" class="float-right"
                                    tabindex="3">{{ __('Forgot your password?') }}</a>
                                 <input class="form-control" type="password" id="password" required="" tabindex="2"
-                                       name="password" autocomplete="current-password" value="password">
+                                       name="password" autocomplete="current-password">
                             </div>
                             <div class="form-group">
                                 <div class="custom-control custom-checkbox">
@@ -38,10 +38,16 @@
                                            for="remember_me">{{ __('Stay signed in for a week') }}</label>
                                 </div>
                             </div>
-                            <div class="form-group text-center mb-0" tabindex="5">
-                                <button class="btn btn-common btn-block" type="submit">{{ __('Continue') }}</button>
+                            <div class="form-group text-center mb-0">
+                                <button class="btn btn-common btn-block" type="submit" tabindex="5">{{ __('Continue') }}</button>
                             </div>
                         </form>
+                        @env('local')
+                        <div class="form-group text-center mb-0">
+                            <x-login-link email="admin@example.com" label="Login as admin" class="btn btn-inverse-dark btn-block mt-2" redirect-url="{{ route('dashboard') }}" />
+                            <x-login-link email="user@example.com" label="Login as regular user" class="btn btn-inverse-dark btn-block mt-2" redirect-url="{{ route('dashboard') }}" />
+                        </div>
+                        @endenv
                     </div>
                 </div>
                 @if (Route::has('register'))
