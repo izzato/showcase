@@ -10,6 +10,6 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware([
     'auth',
-    'password.confirm',
+//    'password.confirm',
     'verified',
 ])->name('dashboard');
