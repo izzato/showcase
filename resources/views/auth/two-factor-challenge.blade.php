@@ -14,7 +14,7 @@
 
                 <div class="card card-shadow">
                     <div class="card-header">
-                        <h4 class="card-title">{{ __('Confirm 2FA code') }}</h4>
+                        <h4 class="card-title">{{ __('Confirm code') }}</h4>
                     </div>
                     <div class="card-body pt-0">
                         <!-- Session Status -->
@@ -24,39 +24,45 @@
                         <x-auth-validation-errors class="mb-4" :errors="$errors"/>
 
                         <p>
-                            {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+                            @if (request()->get('use-recovery-code'))
+                                {{ __('Please confirm a recovery code to continue.') }}
+                            @else
+                                {{ __('Please confirm a code from your authenticator app to continue.') }}
+                            @endif
                         </p>
 
                         <form method="POST" action="{{ url('two-factor-challenge') }}" class="form-horizontal">
                             @csrf
                             <div class="form-group">
-                                <label for="password">{{ __('Password') }}</label>
-                                <input class="form-control" type="password" id="password" required="" tabindex="1"
-                                       name="password" autocomplete="current-password" autofocus>
+                                @if (request()->get('use-recovery-code'))
+                                    <label for="code">{{ __('Recovery code') }}</label>
+                                    <a href="{{url('two-factor-challenge')}}"
+                                       class="float-right">{{ __('Use authentication code') }}</a>
+                                    <input class="form-control" type="text" required=""
+                                           autofocus id="code" inputmode="numeric" name="recovery_code"
+                                           value="" autocomplete="off">
+                                @else
+                                    <label for="code">{{ __('Two factor code') }}</label>
+                                    <a href="{{url('two-factor-challenge')}}?use-recovery-code=true"
+                                       class="float-right">{{ __('Use recovery code') }}</a>
+                                    <input class="form-control" type="text" required=""
+                                           autofocus id="code" inputmode="numeric" pattern="[0-9]*" name="code"
+                                           value="" autocomplete="off">
+                                @endif
                             </div>
 
-                            <p>
-                        {{request()->get('use-recovery-code') ? __('auth.two_factor_authentication.enter_recovery_code') : __("auth.two_factor_authentication.enter_authentication_code")}}
-                    </p>
-                    <div class="form-group row mt-4">
-                        <label class="col-md-4 control-label text-md-right py-1" for="code">{{request()->get('use-recovery-code') ? __('auth.two_factor_authentication.recovery_code') : __('auth.two_factor_authentication.code')}}</label>
-                        <div class="col-md-6">
-                            @if (request()->get('use-recovery-code'))
-                                <input id="code" type="text" class="form-control" placeholder="{{__('auth.two_factor_authentication.recovery_code')}}" name="recovery_code" value="" required autocomplete="off">
-                            @else
-                                <input id="code" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="{{__('auth.two_factor_authentication.code')}}" name="code" value="" required autocomplete="off">
-                            @endif
-                            <a class="btn btn-link btn-black pl-0" href="{{url('two-factor-challenge')}}{{request()->get('use-recovery-code') ? '': '?use-recovery-code=true'}}" dusk="use-recovery-code">{{request()->get('use-recovery-code') ? __('auth.two_factor_authentication.use_authentication_code') : __('auth.two_factor_authentication.use_recovery_code')}}</a>
-                            @if (!request()->get('use-recovery-code'))
-                                <div class="checkbox c-checkbox mt-3"><label dusk="remember-device"><input type="checkbox" name="remember_2fa"><span class="fa fa-check"></span> {{__('auth.two_factor_authentication.remember_device_for', ['days' => config('auth.remember_two_factor_expiry')])}}</label></div>
-                            @endif
-                        </div>
-                    </div>
-
-
+                            {{--                            @if (!request()->get('use-recovery-code'))--}}
+                            {{--                            <div class="form-group">--}}
+                            {{--                                <div class="custom-control custom-checkbox">--}}
+                            {{--                                    <input type="checkbox" class="custom-control-input" id="remember_2fa" name="remember">--}}
+                            {{--                                    <label class="custom-control-label"--}}
+                            {{--                                           for="remember_2fa" dusk="remember-device">{{ __('Remember device for 30 days') }}</label>--}}
+                            {{--                                </div>--}}
+                            {{--                            </div>--}}
+                            {{--                            @endif--}}
 
                             <div class="form-group text-center mb-0">
-                                <button class="btn btn-common btn-block" type="submit" tabindex="2">{{ __('Confirm') }}</button>
+                                <button class="btn btn-common btn-block" type="submit">{{ __('Confirm') }}</button>
                             </div>
                         </form>
                     </div>

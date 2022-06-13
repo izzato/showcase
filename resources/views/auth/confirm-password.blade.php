@@ -24,11 +24,11 @@
                             @csrf
                             <div class="form-group">
                                 <label for="password">{{ __('Password') }}</label>
-                                <input class="form-control" type="password" id="password" required="" tabindex="1"
-                                       name="password" autocomplete="current-password" autofocus>
+                                <input class="form-control" type="password" id="password" required="" name="password"
+                                       autocomplete="current-password" autofocus>
                             </div>
                             <div class="form-group text-center mb-0">
-                                <button class="btn btn-common btn-block" type="submit" tabindex="2">{{ __('Confirm') }}</button>
+                                <button class="btn btn-common btn-block" type="submit">{{ __('Confirm') }}</button>
                             </div>
                         </form>
                     </div>

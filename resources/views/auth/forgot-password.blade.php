@@ -24,11 +24,12 @@
                             @csrf
                             <div class="form-group">
                                 <label for="email">{{ __('Email') }}</label>
-                                <input class="form-control" type="text" required="" id="email" autofocus="" tabindex="1"
-                                       name="email" value="{{ old('email') }}">
+                                <input class="form-control" type="text" required="" id="email" autofocus="" name="email"
+                                       value="{{ old('email') }}">
                             </div>
                             <div class="form-group text-center mb-0">
-                                <button class="btn btn-common btn-block" type="submit" tabindex="2">{{ __('Email password reset link') }}</button>
+                                <button class="btn btn-common btn-block"
+                                        type="submit">{{ __('Email password reset link') }}</button>
                             </div>
                         </form>
                     </div>

@@ -20,28 +20,28 @@
                             @csrf
                             <div class="form-group">
                                 <label for="name">{{ __('Name') }}</label>
-                                <input class="form-control" type="text" required="" id="name" autofocus="" tabindex="1"
-                                       name="name" value="{{ old('name') }}">
+                                <input class="form-control" type="text" required="" id="name" autofocus="" name="name"
+                                       value="{{ old('name') }}">
                             </div>
                             <div class="form-group">
                                 <label for="email">{{ __('Email') }}</label>
-                                <input class="form-control" type="text" required="" id="email" tabindex="2"
-                                       name="email" value="{{ old('email') }}">
+                                <input class="form-control" type="text" required="" id="email" name="email"
+                                       value="{{ old('email') }}">
                             </div>
                             <div class="form-group">
                                 <label for="password">{{ __('Password') }}</label>
-                                <input class="form-control" type="password" id="password" required="" tabindex="3"
-                                       name="password" autocomplete="new-password">
+                                <input class="form-control" type="password" id="password" required="" name="password"
+                                       autocomplete="new-password">
                             </div>
                             <div class="form-group">
                                 <label for="password_confirmation">{{ __('Confirm password') }}</label>
-                                <input class="form-control" type="password" id="password_confirmation" required="" tabindex="4"
+                                <input class="form-control" type="password" id="password_confirmation" required=""
                                        name="password_confirmation" autocomplete="new-password">
                             </div>
                             <div class="form-group">
                                 <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="remember_me" name="remember"
-                                           tabindex="5">
+                                    <input type="checkbox" class="custom-control-input" id="remember_me"
+                                           name="remember">
                                     <label class="custom-control-label"
                                            for="remember_me">{{ __('Agree to terms and conditions') }}</label>
                                 </div>
@@ -51,7 +51,8 @@
                                 <div class="h-captcha" data-sitekey="{{ config('services.captcha.key') }}"></div>
                             </div>
                             <div class="form-group text-center mb-0">
-                                <button class="btn btn-common btn-block" type="submit" tabindex="4">{{ __('Create account') }}</button>
+                                <button class="btn btn-common btn-block"
+                                        type="submit">{{ __('Create account') }}</button>
                             </div>
                         </form>
                     </div>

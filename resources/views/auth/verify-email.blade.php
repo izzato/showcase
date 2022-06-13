@@ -22,8 +22,9 @@
 
                         <form method="POST" action="{{ route('verification.send') }}" class="form-horizontal">
                             @csrf
-                            <div class="form-group text-center mb-0" tabindex="5">
-                                <button class="btn btn-common btn-block" type="submit" {{ session('status') !== 'verification-link-sent'?: 'disabled' }}>{{ __('Resend verification email') }}</button>
+                            <div class="form-group text-center mb-0">
+                                <button class="btn btn-common btn-block"
+                                        type="submit" {{ session('status') !== 'verification-link-sent'?: 'disabled' }}>{{ __('Resend verification email') }}</button>
                             </div>
                         </form>
                     </div>

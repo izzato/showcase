@@ -23,20 +23,22 @@
 
                             <div class="form-group">
                                 <label for="email">{{ __('Email') }}</label>
-                                <input class="form-control" type="text" required="" id="email" tabindex="1"
+                                <input class="form-control" type="text" required="" id="email"
                                        name="email" value="{{ old('email', request()->email) }}" readonly="">
                             </div>
                             <div class="form-group">
                                 <label for="password">{{ __('Password') }}</label>
-                                <input class="form-control" type="password" id="password" required="" tabindex="2"  autofocus="" name="password" autocomplete="new-password">
+                                <input class="form-control" type="password" id="password" required="" autofocus=""
+                                       name="password" autocomplete="new-password">
                             </div>
                             <div class="form-group">
                                 <label for="password_confirmation">{{ __('Confirm password') }}</label>
-                                <input class="form-control" type="password" id="password_confirmation" required="" tabindex="3"
+                                <input class="form-control" type="password" id="password_confirmation" required=""
                                        name="password_confirmation" autocomplete="new-password">
                             </div>
                             <div class="form-group text-center mb-0">
-                                <button class="btn btn-common btn-block" type="submit" tabindex="4">{{ __('Set new password') }}</button>
+                                <button class="btn btn-common btn-block"
+                                        type="submit">{{ __('Set new password') }}</button>
                             </div>
                         </form>
                     </div>
