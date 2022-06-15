@@ -39,13 +39,13 @@
                                 </div>
                             </div>
                             <div class="form-group text-center mb-0">
-                                <button class="btn btn-common btn-block" type="submit" tabindex="5">{{ __('Continue') }}</button>
+                                <button class="btn btn-common btn-block btn-feature" type="submit" tabindex="5">{{ __('Continue') }}</button>
                             </div>
                         </form>
                         @env('local')
                         <div class="form-group text-center mb-0">
-                            <x-login-link email="admin@example.com" label="Login as admin" class="btn btn-outline-secondary btn-block mt-2" redirect-url="{{ route('dashboard') }}" />
-                            <x-login-link email="user@example.com" label="Login as regular user" class="btn btn-outline-secondary btn-block mt-2" redirect-url="{{ route('dashboard') }}" />
+                            <x-login-link email="admin@example.com" label="Login as admin" class="btn btn-outline-secondary btn-block mt-2 btn-feature" redirect-url="{{ route('dashboard') }}" />
+                            <x-login-link email="user@example.com" label="Login as regular user" class="btn btn-outline-secondary btn-block mt-2 btn-feature" redirect-url="{{ route('dashboard') }}" />
                         </div>
                         @endenv
                     </div>

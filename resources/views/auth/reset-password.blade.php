@@ -37,7 +37,7 @@
                                        name="password_confirmation" autocomplete="new-password">
                             </div>
                             <div class="form-group text-center mb-0">
-                                <button class="btn btn-common btn-block"
+                                <button class="btn btn-common btn-block btn-feature"
                                         type="submit">{{ __('Set new password') }}</button>
                             </div>
                         </form>

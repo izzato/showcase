@@ -28,7 +28,7 @@
                                        autocomplete="current-password" autofocus>
                             </div>
                             <div class="form-group text-center mb-0">
-                                <button class="btn btn-common btn-block" type="submit">{{ __('Confirm') }}</button>
+                                <button class="btn btn-common btn-block btn-feature" type="submit">{{ __('Confirm') }}</button>
                             </div>
                         </form>
                     </div>
