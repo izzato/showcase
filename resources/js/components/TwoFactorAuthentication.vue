@@ -1,25 +1,25 @@
 <template>
     <div>
         <h3 class="tab-header card-header" v-if="twoFactorEnabled">
-            {{__('sdx.settings.twoFactorAuthentication.isEnabled')}}
+            {{__('auth.two_factor_authentication.is_enabled')}}
         </h3>
         <h3 class="tab-header card-header" v-else>
-            {{__('sdx.settings.twoFactorAuthentication.isDisabled')}}
+            {{__('auth.two_factor_authentication.is_disabled')}}
         </h3>
         <form class="card-body" role="form" method="POST"
-              :action="url('sdx.settings.twoFactorAuthentication.toggleURL')"
+              :action="url('old.settings.twoFactorAuthentication.toggleURL')"
               @submit.prevent="toggleTwoFactorAuthentication()">
             <div class="mt-1">
                 <p>
-                    {{__('sdx.settings.twoFactorAuthentication.explanation')}}
+                    {{__('auth.two_factor_authentication.explanation')}}
                 </p>
             </div>
 
             <div class="mt-5 mb-3" v-if="showingQrCode">
-                <h3 class="tab-header mb-4">QR code</h3>
+                <h3 class="tab-header mb-4">{{__('auth.two_factor_authentication.qr_code')}}</h3>
                 <div class="my-2">
                     <p>
-                        {{__('sdx.settings.twoFactorAuthentication.enabledScanQrCode')}}
+                        {{__('auth.two_factor_authentication.enabled_scan_qr_code')}}
                     </p>
                 </div>
                 <span v-html="qrCode"></span>
@@ -27,8 +27,8 @@
             <div class="mt-5 mb-3" v-if="showingRecoveryCodes">
                 <div>
                     <div>
-                        <h3 class="tab-header mb-4">Recovery codes</h3>
-                        <p>{{__('sdx.settings.twoFactorAuthentication.recoveryCodeExplanation')}}</p>
+                        <h3 class="tab-header mb-4">{{__('auth.two_factor_authentication.recovery_codes')}}</h3>
+                        <p>{{__('auth.two_factor_authentication.recovery_code_explanation')}}</p>
                         <pre style="overflow: auto;word-break: break-all;word-wrap: break-word;margin:0"><code
                                 style="white-space: pre-wrap;word-break: break-all;word-wrap: break-word;font-size: 1.2em"><div
                                 v-for="code in recoveryCodes">{{code}}</div></code></pre>
@@ -40,27 +40,27 @@
         </form>
 
         <div class="card-footer d-flex">
-            <form method="POST" :action="url('sdx.settings.twoFactorAuthentication.recoveryCodesURL')"
+            <form method="POST" :action="url('old.settings.twoFactorAuthentication.recoveryCodesURL')"
                   v-if="showingRecoveryCodes" @submit.prevent="regenerateRecoveryCodes()">
                 <button class="btn btn-labeled btn-outline-secondary mb-0" type="submit">
-                    <span class="btn-label"><i class="fa fa-sync-alt"></i></span>{{__('sdx.settings.twoFactorAuthentication.regenerateRecoveryCodes')}}
+                    <span class="btn-label"></span>{{__('auth.two_factor_authentication.regenerate_recovery_codes')}}
                 </button>
             </form>
             <a class="btn btn-labeled btn-outline-secondary mb-0" href="#"
                v-if="twoFactorEnabled && !showingRecoveryCodes" @click.prevent="showRecoveryCodes()">
-                <span class="btn-label"><i class="fa fa-eye"></i></span>{{__('sdx.settings.twoFactorAuthentication.showRecoveryCodes')}}
+                <span class="btn-label"></span>{{__('auth.two_factor_authentication.show_recovery_codes')}}
             </a>
             <a class="btn btn-labeled btn-outline-secondary mb-0 ml-2" href="#"
                v-if="twoFactorEnabled && showingQrCodeButton" @click.prevent="showQrCode()">
-                <span class="btn-label"><i class="fa fa-eye"></i></span>{{__('sdx.settings.twoFactorAuthentication.showQrCode')}}
+                <span class="btn-label"></span>{{__('auth.two_factor_authentication.show_qr_code')}}
             </a>
-            <label for="user-2fa-submit" tabindex="0" class="btn btn-labeled btn-danger ml-auto mb-0 font-weight-bold"
+            <label for="user-2fa-submit" class="btn btn-labeled btn-danger ml-auto mb-0 font-weight-bold"
                    v-if="twoFactorEnabled" dusk="two-factor-disable-button">
-                <span class="btn-label"><i class="fa fa-times"></i></span>{{__('sdx.settings.twoFactorAuthentication.disable')}}
+                <span class="btn-label"></span>{{__('auth.two_factor_authentication.disable')}}
             </label>
-            <label for="user-2fa-submit" tabindex="0" class="btn btn-labeled btn-primary ml-auto mb-0"
+            <label for="user-2fa-submit" class="btn btn-labeled btn-common ml-auto mb-0"
                    v-if="!twoFactorEnabled" dusk="two-factor-enable-button">
-                <span class="btn-label"><i class="fa fa-check"></i></span>{{__('sdx.settings.twoFactorAuthentication.enable')}}
+                <span class="btn-label"></span>{{__('auth.two_factor_authentication.enable')}}
             </label>
         </div>
     </div>
@@ -94,8 +94,10 @@
         },
 
         methods: {
-            url(key) {
-                return this.resolve(key);
+            url(key, obj) {
+                return key.split('.').reduce(function (prev, curr) {
+                    return prev ? prev[curr] : null
+                }, obj || self)
             },
             trans(key) {
                 return this.resolve(key);
@@ -104,13 +106,11 @@
                 return this.resolve(key);
             },
             resolve(path, obj) {
-                return path.split('.').reduce(function (prev, curr) {
-                    return prev ? prev[curr] : null
-                }, obj || self)
+                return this.$t(path);
             },
             confirmLeaving(event) {
                 if (this.dirty) {
-                    const unsaved_changes_warning = this.trans('sdx.settings.twoFactorAuthentication.oldBrowserLeaveWarning');
+                    const unsaved_changes_warning = this.trans('auth.two_factor_authentication.old_browser_leave_warning');
                     event.returnValue = unsaved_changes_warning;
                     return unsaved_changes_warning;
                 }
@@ -133,21 +133,24 @@
                     return this.enable2FA();
                 }
 
-                return this.disable2FA(); // no longer confirming 2fa code to disable, as there is really no need and requires custom endpoints/logic
+                if (!response.data.userConfirmed) {
+                    // here you can have a confirmation or do the actual work
+                    return this.getDisable2faConfirmation(this.disable2FA); // returns 'userConfirmed':true|false
+                } // no longer confirming 2fa code to disable, as there is really no need and requires custom endpoints/logic
                 // we need to confirm 2fa code or recovery code before disabling
                 return this.getDisableTwoFactorAuthenticationWithCode((code) => {
                         var response = (code.includes("-") && code.length === 21) ? {"recovery_code": code} : {"code": code};
-                        axios.post(this.url('sdx.settings.twoFactorAuthentication.disableCheckURL'), response)
+                        axios.post(this.url('old.settings.twoFactorAuthentication.disableCheckURL'), response)
                             .then(response => {
                                 return this.disable2FA();
                             })
                             .catch((error) => {
                                 if (error.response) {
                                     if (error.response.status === 401) {
-                                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.codeDoesNotMatch'), "error");
+                                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.code_does_not_match'), "error");
                                     }
                                 }
-                                return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                                return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                             });
                     }
                 );
@@ -169,7 +172,7 @@
                     swal.close();
                     return this.sendPasswordConfirmation(response.data.password, this.showQrCode); // returns 'passwordConfirmed':true|false
                 }
-                return axios.get(this.url('sdx.settings.twoFactorAuthentication.qrCodeURL'))
+                return axios.get(this.url('old.settings.twoFactorAuthentication.qrCodeURL'))
                     .then(response => {
                         if (response.data.svg) {
                             this.qrCode = response.data.svg;
@@ -177,7 +180,7 @@
                         }
                     })
                     .catch((error) => {
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             showRecoveryCodes(response = null) {
@@ -221,24 +224,24 @@
                     // here you can have a confirmation or do the actual work
                     return this.getRegenerateRecoveryCodesConfirmation(this.regenerateRecoveryCodes); // returns 'userConfirmed':true|false
                 }
-                return axios.post(this.url('sdx.settings.twoFactorAuthentication.recoveryCodesURL'))
+                return axios.post(this.url('old.settings.twoFactorAuthentication.recoveryCodesURL'))
                     .then(response => {
-                        swal(this.trans('sdx.settings.twoFactorAuthentication.success'), this.trans('sdx.settings.twoFactorAuthentication.recoveryCodesGenerated'), "success");
+                        swal(this.trans('auth.two_factor_authentication.success'), this.trans('auth.two_factor_authentication.recovery_codes_generated'), "success");
                         return this.getRecoveryCodes();
                     })
                     .catch((error) => {
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             getRegenerateRecoveryCodesConfirmation(callback, errorCallback = null) {
                 swal({
-                    title: this.trans('sdx.settings.twoFactorAuthentication.confirmRegeneration'),
-                    text: this.trans('sdx.settings.twoFactorAuthentication.pleaseConfirmRegeneration'),
+                    title: this.trans('auth.two_factor_authentication.confirm_regeneration'),
+                    text: this.trans('auth.two_factor_authentication.please_confirm_regeneration'),
                     icon: "warning",
                     buttons: {
-                        cancel: this.trans('sdx.settings.twoFactorAuthentication.cancel'),
+                        cancel: this.trans('auth.two_factor_authentication.cancel'),
                         confirm: {
-                            text: this.trans('sdx.settings.twoFactorAuthentication.confirm'),
+                            text: this.trans('auth.two_factor_authentication.confirm'),
                             value: true,
                             closeModal: false,
                         }
@@ -255,11 +258,39 @@
                         if (errorCallback) {
                             return errorCallback(error);
                         }
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
+                    });
+            },
+            getDisable2faConfirmation(callback, errorCallback = null) {
+                swal({
+                    title: this.trans('auth.two_factor_authentication.confirm_disable'),
+                    text: this.trans('auth.two_factor_authentication.please_confirm_disable'),
+                    icon: "warning",
+                    buttons: {
+                        cancel: this.trans('auth.two_factor_authentication.cancel'),
+                        confirm: {
+                            text: this.trans('auth.two_factor_authentication.disable_'),
+                            value: true,
+                            closeModal: false,
+                        }
+                    },
+                    dangerMode: true,
+                })
+                    .then(confirmed => {
+                        if (!confirmed) {
+                            return null;
+                        }
+                        return callback({"data": {"userConfirmed": confirmed}});
+                    })
+                    .catch((error) => {
+                        if (errorCallback) {
+                            return errorCallback(error);
+                        }
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             sendPasswordConfirmation(password, callback, errorCallback = null) {
-                axios.post(this.url('sdx.settings.twoFactorAuthentication.confirmPasswordURL'), {"password": password})
+                axios.post(this.url('old.settings.twoFactorAuthentication.confirmPasswordURL'), {"password": password})
                     .then(results => {
                         // if (!results) throw null;
 
@@ -271,27 +302,27 @@
                         }
                         if (error.response) {
                             if (error.response.status === 422) {
-                                return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.passwordDoesNotMatch'), "error");
+                                return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.password_does_not_match'), "error");
                             }
-                            return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                            return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                         }
                     });
             },
             getPasswordConfirmation(callback, errorCallback = null) {
                 swal({
-                    title: this.trans('sdx.settings.twoFactorAuthentication.confirmPassword'),
-                    text: this.trans('sdx.settings.twoFactorAuthentication.pleaseConfirmPassword'),
+                    title: this.trans('auth.two_factor_authentication.confirm_password'),
+                    text: this.trans('auth.two_factor_authentication.please_confirm_password'),
                     content: {
                         element: "input",
                         attributes: {
-                            placeholder: this.trans('sdx.settings.twoFactorAuthentication.password'),
+                            placeholder: this.trans('auth.two_factor_authentication.password'),
                             type: "password",
                         },
                     },
                     buttons: {
-                        cancel: this.trans('sdx.settings.twoFactorAuthentication.cancel'),
+                        cancel: this.trans('auth.two_factor_authentication.cancel'),
                         confirm: {
-                            text: this.trans('sdx.settings.twoFactorAuthentication.confirm'),
+                            text: this.trans('auth.two_factor_authentication.confirm'),
                             closeModal: false,
                         }
                     },
@@ -309,11 +340,11 @@
                         if (errorCallback) {
                             return errorCallback(error);
                         }
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             checkPasswordConfirmation(callback, errorCallback = null) {
-                axios.get(this.url('sdx.settings.twoFactorAuthentication.confirmedPasswordStatusURL'))
+                axios.get(this.url('old.settings.twoFactorAuthentication.confirmedPasswordStatusURL'))
                     .then(response => {
                         return callback(response);
                     })
@@ -321,18 +352,18 @@
                         if (errorCallback) {
                             return errorCallback(error);
                         }
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             getDisableTwoFactorAuthenticationConfirmation(callback, errorCallback = null) {
                 swal({
-                    title: this.trans('sdx.settings.twoFactorAuthentication.confirmDisable'),
-                    text: this.trans('sdx.settings.twoFactorAuthentication.pleaseConfirmDisable'),
+                    title: this.trans('auth.two_factor_authentication.confirm_disable'),
+                    text: this.trans('auth.two_factor_authentication.please_confirm_disable'),
                     icon: "warning",
                     buttons: {
-                        cancel: this.trans('sdx.settings.twoFactorAuthentication.cancel'),
+                        cancel: this.trans('auth.two_factor_authentication.cancel'),
                         confirm: {
-                            text: this.trans('sdx.settings.twoFactorAuthentication.disable'),
+                            text: this.trans('auth.two_factor_authentication.disable_'),
                             value: true,
                             closeModal: false,
                         }
@@ -349,23 +380,23 @@
                         if (errorCallback) {
                             return errorCallback(error);
                         }
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             getDisableTwoFactorAuthenticationWithCode(callback, errorCallback = null) {
                 swal({
-                    title: this.trans('sdx.settings.twoFactorAuthentication.confirmAppCode'),
-                    text: this.trans('sdx.settings.twoFactorAuthentication.pleaseConfirmAppCode'),
+                    title: this.trans('auth.two_factor_authentication.confirm_app_code'),
+                    text: this.trans('auth.two_factor_authentication.please_confirm_app_code'),
                     content: {
                         element: "input",
                         attributes: {
-                            placeholder: this.trans('sdx.settings.twoFactorAuthentication.code'),
+                            placeholder: this.trans('auth.two_factor_authentication.code'),
                         },
                     },
                     buttons: {
-                        cancel: this.trans('sdx.settings.twoFactorAuthentication.cancel'),
+                        cancel: this.trans('auth.two_factor_authentication.cancel'),
                         confirm: {
-                            text: this.trans('sdx.settings.twoFactorAuthentication.disable'),
+                            text: this.trans('auth.two_factor_authentication.disable'),
                             closeModal: false,
                         }
                     },
@@ -384,33 +415,33 @@
                         if (errorCallback) {
                             return errorCallback(error);
                         }
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             enable2FA() {
                 this.dirty = true;
-                axios.post(this.url('sdx.settings.twoFactorAuthentication.toggleURL'))
+                axios.post(this.url('old.settings.twoFactorAuthentication.toggleURL'))
                     .then(response => {
                         return this.getRecoveryCodes();
                     })
                     .catch((error) => {
-                        axios.delete(this.url('sdx.settings.twoFactorAuthentication.toggleURL'));
+                        axios.delete(this.url('old.settings.twoFactorAuthentication.toggleURL'));
                         this.dirty = false;
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             disable2FA() {
-                axios.delete(this.url('sdx.settings.twoFactorAuthentication.toggleURL'))
+                axios.delete(this.url('old.settings.twoFactorAuthentication.toggleURL'))
                     .then(response => {
                         return this.getRecoveryCodes();
                     })
                     .catch((error) => {
                         this.dirty = false;
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             getRecoveryCodes() {
-                axios.get(this.url('sdx.settings.twoFactorAuthentication.recoveryCodesURL'))
+                axios.get(this.url('old.settings.twoFactorAuthentication.recoveryCodesURL'))
                     .then(response => {
                         if (Array.isArray(response.data) && response.data.length > 0) {
                             this.recoveryCodes = response.data;
@@ -426,16 +457,16 @@
                         this.showingQrCode = false;
                         this.recoveryCodes = [];
                         this.dirty = false;
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.success'), this.trans('sdx.settings.twoFactorAuthentication.hasBeenDisabled'), "success");
+                        return swal(this.trans('auth.two_factor_authentication.success'), this.trans('auth.two_factor_authentication.has_been_disabled'), "success");
                     })
                     .catch((error) => {
-                        axios.delete(this.url('sdx.settings.twoFactorAuthentication.toggleURL'));
+                        axios.delete(this.url('old.settings.twoFactorAuthentication.toggleURL'));
                         this.dirty = false;
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             getQrCode(callback = null, errorCallback = null) {
-                axios.get(this.url('sdx.settings.twoFactorAuthentication.qrCodeURL'))
+                axios.get(this.url('old.settings.twoFactorAuthentication.qrCodeURL'))
                     .then(response => {
                         if (callback) {
                             return callback(response);
@@ -451,23 +482,23 @@
                         if (errorCallback) {
                             return errorCallback(error);
                         }
-                        axios.delete(this.url('sdx.settings.twoFactorAuthentication.toggleURL'));
+                        axios.delete(this.url('old.settings.twoFactorAuthentication.toggleURL'));
                         this.dirty = false;
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             showConfirmCodeModal(qrCode) {
                 var span = document.createElement("span");
-                span.innerHTML = qrCode + '<input type="text" inputmode="numeric" pattern="[0-9]*" id="swal-input1" class="swal-content__input mt-3" placeholder="' + this.trans('sdx.settings.twoFactorAuthentication.code') + '" autocomplete="off"><img src="//:0" class="d-none" onerror="setTimeout(function(){ $(\'#swal-input1\').focus();$(\'#swal-input1\').on(\'keydown\', function(event) {if(event.which == 13){$(\'#swal-input1\').parent().parent().parent().parent().find(\'.swal-button--confirm\').trigger(\'click\');}}); }, 500) ">'; // JESUS! This is to get around sweetalert limitations
+                span.innerHTML = qrCode + '<input type="text" inputmode="numeric" pattern="[0-9]*" id="swal-input1" class="swal-content__input mt-3" placeholder="' + this.trans('auth.two_factor_authentication.code') + '" autocomplete="off"><img src="//:0" class="d-none" onerror="setTimeout(function(){ $(\'#swal-input1\').focus();$(\'#swal-input1\').on(\'keydown\', function(event) {if(event.which == 13){$(\'#swal-input1\').parent().parent().parent().parent().find(\'.swal-button--confirm\').trigger(\'click\');}}); }, 500) ">'; // JESUS! This is to get around sweetalert limitations
                 swal({
-                    title: this.trans('sdx.settings.twoFactorAuthentication.confirmAppCode'),
-                    text: this.trans('sdx.settings.twoFactorAuthentication.enterAuthenticatorAppCode'),
+                    title: this.trans('auth.two_factor_authentication.confirm_app_code'),
+                    text: this.trans('auth.two_factor_authentication.enter_authenticator_app_code'),
                     content: {
                         element: span
                     },
                     buttons: {
                         confirm: {
-                            text: this.trans('sdx.settings.twoFactorAuthentication.confirm'),
+                            text: this.trans('auth.two_factor_authentication.confirm'),
                             closeModal: false,
                         }
                     },
@@ -480,31 +511,31 @@
                         }
                     })
                     .catch((error) => {
-                        axios.delete(this.url('sdx.settings.twoFactorAuthentication.toggleURL'));
+                        axios.delete(this.url('old.settings.twoFactorAuthentication.toggleURL'));
                         this.dirty = false;
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
             confirmCode() {
-                axios.post(this.url('sdx.settings.twoFactorAuthentication.enableCheckURL'), {
+                axios.post(this.url('old.settings.twoFactorAuthentication.enableCheckURL'), {
                     "code": $('#swal-input1').val(),
-                    "user_id": sdx.auth.user.id
+                    "user_id": old.auth.user.id
                 })
                     .then(response => {
                         this.twoFactorEnabled = true;
                         this.showingRecoveryCodes = true;
                         this.dirty = false;
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.success'), this.trans('sdx.settings.twoFactorAuthentication.hasBeenEnabled'), "success");
+                        return swal(this.trans('auth.two_factor_authentication.success'), this.trans('auth.two_factor_authentication.has_been_enabled'), "success");
                     })
                     .catch((error) => {
-                        axios.delete(this.url('sdx.settings.twoFactorAuthentication.toggleURL'));
+                        axios.delete(this.url('old.settings.twoFactorAuthentication.toggleURL'));
                         this.dirty = false;
                         if (error.response) {
                             if (error.response.status === 401) {
-                                return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.codeDoesNotMatch'), "error");
+                                return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.code_does_not_match'), "error");
                             }
                         }
-                        return swal(this.trans('sdx.settings.twoFactorAuthentication.sorry'), this.trans('sdx.settings.twoFactorAuthentication.thereWasAnError'), "error");
+                        return swal(this.trans('auth.two_factor_authentication.sorry'), this.trans('auth.two_factor_authentication.there_was_an_error'), "error");
                     });
             },
         }

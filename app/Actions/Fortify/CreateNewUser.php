@@ -30,12 +30,25 @@ class CreateNewUser implements CreatesNewUsers
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
+            'agreed_to_terms_and_conditions' => [
+                'accepted',
+            ],
+        ], [
+            'agreed_to_terms_and_conditions.accepted' => __('validation.agreed_to_terms_and_conditions.accepted'),
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+
+        if (session('locale') && in_array(session('locale'), array_keys(\Symfony\Component\Intl\Locales::getNames()))) {
+            $user->settings()->set('locale', session('locale'));
+        }
+
+        $user->settings()->set('agreed_to_terms_and_conditions_at', now());
+
+        return $user;
     }
 }

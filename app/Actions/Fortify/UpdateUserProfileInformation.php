@@ -18,7 +18,10 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
      */
     public function update($user, array $input)
     {
+        session()->flash('tab', 'profile');
         Validator::make($input, [
+            'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
+
             'name' => ['required', 'string', 'max:255'],
 
             'email' => [
@@ -28,7 +31,29 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
                 'max:255',
                 Rule::unique('users')->ignore($user->id),
             ],
+
+            'timezone' => [
+                'required',
+                'string',
+                'timezone',
+            ],
+
+            'locale' => [
+                'required',
+                'string',
+                Rule::in(array_keys(\Symfony\Component\Intl\Locales::getNames())),
+            ],
+
+            'theme' => [
+                'required',
+                'string',
+                Rule::in(['auto', 'light', 'dark']),
+            ],
         ])->validateWithBag('updateProfileInformation');
+
+        if (isset($input['photo'])) {
+            $user->updateProfilePhoto($input['photo']);
+        }
 
         if ($input['email'] !== $user->email &&
             $user instanceof MustVerifyEmail) {
@@ -38,6 +63,11 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
                 'name' => $input['name'],
                 'email' => $input['email'],
             ])->save();
+            $user->settings()->setMultiple([
+                'timezone' => $input['timezone'],
+                'theme' => $input['theme'],
+                'locale' => $input['locale'],
+            ]);
         }
     }
 

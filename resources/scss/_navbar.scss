@@ -89,6 +89,8 @@
     }
     .nav-left .user-profile .profile-img, .nav-right .user-profile .profile-img {
       width: 40px;
+      object-fit: cover;
+      height: 40px;
       border-radius: 50%;
       margin-top: 12px;
       float: left;

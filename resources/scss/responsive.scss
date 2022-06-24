@@ -104,6 +104,11 @@
   .box-title {
     margin-top: 20px;
   }
+
+  .auth-language-selector {
+    position: initial !important;
+    margin: 1rem auto;
+  }
 }
 
 @media only screen and (max-width: 767px) {

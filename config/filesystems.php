@@ -73,4 +73,6 @@ return [
         public_path('storage') => storage_path('app/public'),
     ],
 
+    'profile_photo_disk' => env('PROFILE_PUBLIC_DISK', 'public'),
+
 ];

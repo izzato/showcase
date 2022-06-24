@@ -1,0 +1,35 @@
+.password-show-toggle {
+  .toggle-btn {
+    float: right;
+    position: relative;
+    top: -35px;
+    right: 10px;
+
+    i {
+      display: none;
+    }
+  }
+}
+
+.is-invalid + .toggle-btn,
+.is-valid + .toggle-btn {
+  right: 35px;
+}
+
+.swal-text {
+  text-align: center;
+}
+
+.swal-button {
+  font-weight: 700;
+  padding: 0.375rem 0.75rem;
+}
+
+.swal-button--confirm {
+  background-color: $preset !important;
+}
+
+.swal-button--danger {
+  background-color: #dc3545 !important;
+  border-color: #dc3545;
+}
